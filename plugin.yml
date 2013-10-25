@@ -1,0 +1,10 @@
+name: Expbowsion
+main: com.mutanthamster.Expanse
+version: 1.0
+description: Kill your friends... with bows!
+
+commands:
+   class:
+     description: Select player class
+   throw:
+     description: Throws an entity
