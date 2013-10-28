@@ -3,7 +3,6 @@ package com.mutanthamster;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -55,7 +54,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import com.mutanthamster.items.InventoryBase;
 import com.mutanthamster.items.ItemBase;
-import com.mutanthamster.items.CustomItems.ExBowsion;
+import com.mutanthamster.tasks.NoStickGrenadeTask;
+import com.mutanthamster.tasks.PlayerDeathTask;
 
 
 public class PlayerListener implements Listener 
@@ -64,9 +64,6 @@ public class PlayerListener implements Listener
 	ItemStack item; Player arrowShooter; float myForce; 
 	
 	ArrayList<Location> spawns = new ArrayList<>();
-	
-	ArrayList<Block> sentries = new ArrayList<>();
-	ArrayList<Player> sentryPlacers = new ArrayList<>();
 	
 	Logger log;
 	
@@ -100,6 +97,22 @@ public class PlayerListener implements Listener
 		return toReturn;
 	}
 
+	public int isInArena(Player player, ArrayList<Arena> arenas)
+	{
+		for(int i = 0; i < arenas.size(); i++)
+		{
+			if(player.getLocation().distance(arenas.get(i).getArenaPoints().get(0)) < arenas.get(i).getArenaPoints().get(0).distance(arenas.get(i).getArenaPoints().get(1)))
+			{
+				player.setMetadata("Arena", new FixedMetadataValue(this.plugin, arenas.get(i)));
+				return i;
+			}
+				
+		}
+		return 1000;
+	}
+	
+	
+	
 	@EventHandler
 	public void onGainKill(PlayerLevelChangeEvent event)
 	{
@@ -132,35 +145,19 @@ public class PlayerListener implements Listener
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-    	ItemStack ExpBow = new ItemStack(Material.BOW);
-    	ItemStack ExpSnowball = new ItemStack(Material.SNOW_BALL, 3);
-    	ItemStack ExpPressurePlate = new ItemStack(Material.WOOD_PLATE, 1);
-    	ItemStack ExpEgg = new ItemStack(Material.EGG, 1);
     	
-    	ExBowsion ExpBowsionItem;
+    	ItemBase ExBow = new ItemBase(new ItemStack(Material.BOW, 1), ChatColor.YELLOW + "ExBOWsion", 1);
+    	ItemBase ExSnowball = new ItemBase(new ItemStack(Material.SNOW_BALL, 3), ChatColor.BLUE + "Flash Bang", 1);
+    	ItemBase ExEgg = new ItemBase(new ItemStack(Material.EGG ,1), ChatColor.GRAY + "Sticky Grenade", 1);
+    	ItemBase ExPressurePlate = new ItemBase(new ItemStack(Material.WOOD_PLATE ,1), ChatColor.RED + "Tripmine", 1);
     	
-    	ItemMeta im = ExpBow.getItemMeta();
-    	ItemMeta im2 = ExpSnowball.getItemMeta();
-    	ItemMeta im3 = ExpPressurePlate.getItemMeta();
-    	ItemMeta im4 = ExpEgg.getItemMeta();
-    	
-    	im.setDisplayName(ChatColor.YELLOW + "ExBOWsion");
-    	im2.setDisplayName(ChatColor.BLUE + "Flash Bang");
-    	im3.setDisplayName(ChatColor.RED + "Tripmine");
-    	im4.setDisplayName(ChatColor.GRAY + "Sticky Grenade");
-    	
-    	ExpBow.setItemMeta(im);
-    	ExpSnowball.setItemMeta(im2);
-    	ExpPressurePlate.setItemMeta(im3);
-    	ExpEgg.setItemMeta(im4);
-    	
-    	event.getPlayer().getInventory().addItem(ExpBow);
-    	event.getPlayer().getInventory().addItem(ExpSnowball);
-    	event.getPlayer().getInventory().addItem(ExpPressurePlate);
-    	event.getPlayer().getInventory().addItem(ExpEgg);
-    	
+    	event.getPlayer().getInventory().addItem(ExBow.getItemAsItemStack());
+    	event.getPlayer().getInventory().addItem(ExSnowball.getItemAsItemStack());
+    	event.getPlayer().getInventory().addItem(ExPressurePlate.getItemAsItemStack());
+    	event.getPlayer().getInventory().addItem(ExEgg.getItemAsItemStack());
     	event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
     	event.getPlayer().getInventory().setHeldItemSlot(0);
+    	
     	
     	Location toCompare = event.getPlayer().getLocation();
     	double temp; temp = toCompare.distance(toCompare);
@@ -197,9 +194,6 @@ public class PlayerListener implements Listener
 				event.getPlayer().getWorld().getBlockAt(event.getPlayer().getLocation()).setType(Material.FENCE);
 				Block myDispenser = event.getPlayer().getWorld().getBlockAt(event.getPlayer().getLocation().getBlockX(), event.getPlayer().getLocation().getBlockY() +1, event.getPlayer().getLocation().getBlockZ());
 				myDispenser.setType(Material.DISPENSER);
-				
-				sentries.add(myDispenser);
-				sentryPlacers.add(event.getPlayer());
 			}
 			
 			event.getPlayer().getInventory().clear(8);
@@ -226,17 +220,7 @@ public class PlayerListener implements Listener
     @EventHandler 
     public void onDropItem(PlayerDeathEvent event)
     {
-    	Player playerDead = event.getEntity();
-    	Player playerKiller = playerDead.getKiller();
-    	
-    	event.getDrops().clear();
-    	event.setDroppedExp(0);
-    	
-    	//playerKiller.setMetadata("Kills", FixedMetadataValue(this.plugin, playerKiller.getMetadata("Kills").get(0).asInt()) + 1);
-    	
-    	//playerKiller.setLevel(playerKiller.getMetadata("Kills").get(0).asInt());
-    	playerKiller.setLevel(playerKiller.getLevel()+1);
-    	playerDead.setLevel(0);
+    	BukkitTask task = new PlayerDeathTask(this.plugin, event).runTaskLater(this.plugin, 0);
     }
     
     @EventHandler
@@ -267,22 +251,6 @@ public class PlayerListener implements Listener
     	{
     		Player shooter = getShooter(event);
     		
-	    	if(event.getEntityType() == EntityType.ARROW)
-	    	{	
-	    		
-	    	}else if(event.getEntityType() == EntityType.SNOWBALL)
-	    	{
-	    		for(int i = 0; i < event.getEntity().getWorld().getPlayers().size(); i++)
-	    		{
-	    			if(event.getEntity().getWorld().getPlayers().get(i).getLocation().distance(event.getEntity().getLocation()) < 3)
-	    			{
-	    				event.getEntity().getWorld().getPlayers().get(i).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1));
-	    			}
-	    		}
-	    	}else if(event.getEntityType() == EntityType.EGG)
-	    	{
-	    		BukkitTask task = new NoStickGrenadeTask(this.plugin, event.getEntity().getLocation()).runTaskLater(this.plugin, 40);
-	    	}
 	    }
     }
     

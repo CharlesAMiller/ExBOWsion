@@ -27,8 +27,9 @@ public class ItemBase
 		
 		this.inventorySlot = inventorySlot;
 		
-		item.setAmount(1); //TODO <-- Is this needed?
+		//item.setAmount(1); //TODO <-- Is this needed?
 	}
+	
 	public ItemBase(ItemStack item, String itemName, Enchantment[] enchantments, int[] enchantmentLevels)
 	{
 		this.item = item;
