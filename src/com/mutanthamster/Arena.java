@@ -48,9 +48,11 @@ public class Arena
 		
 	}
 	
-	String getGametype(){ return gameType; }
+	public String getGametype(){ return gameType; }
 	
-	ArrayList<Location> getArenaPoints()
+	public Location getSpawn(int spawn){ return spawns.get(spawn); }
+	
+	public ArrayList<Location> getArenaPoints()
 	{
 		ArrayList<Location> toReturn = new ArrayList<>();
 		toReturn.add(p1);
@@ -59,4 +61,7 @@ public class Arena
 		return toReturn;
 	}
 	
+	public ArrayList<Player> getPopulators(){ return populators; }
+	
+	public ArrayList<Location> getSpawns() { return spawns; }
 }

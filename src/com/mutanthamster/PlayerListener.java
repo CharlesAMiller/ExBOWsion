@@ -56,6 +56,7 @@ import com.mutanthamster.items.InventoryBase;
 import com.mutanthamster.items.ItemBase;
 import com.mutanthamster.tasks.NoStickGrenadeTask;
 import com.mutanthamster.tasks.PlayerDeathTask;
+import com.mutanthamster.tasks.SpawnTask;
 
 
 public class PlayerListener implements Listener 
@@ -145,35 +146,7 @@ public class PlayerListener implements Listener
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-    	
-    	ItemBase ExBow = new ItemBase(new ItemStack(Material.BOW, 1), ChatColor.YELLOW + "ExBOWsion", 1);
-    	ItemBase ExSnowball = new ItemBase(new ItemStack(Material.SNOW_BALL, 3), ChatColor.BLUE + "Flash Bang", 1);
-    	ItemBase ExEgg = new ItemBase(new ItemStack(Material.EGG ,1), ChatColor.GRAY + "Sticky Grenade", 1);
-    	ItemBase ExPressurePlate = new ItemBase(new ItemStack(Material.WOOD_PLATE ,1), ChatColor.RED + "Tripmine", 1);
-    	
-    	event.getPlayer().getInventory().addItem(ExBow.getItemAsItemStack());
-    	event.getPlayer().getInventory().addItem(ExSnowball.getItemAsItemStack());
-    	event.getPlayer().getInventory().addItem(ExPressurePlate.getItemAsItemStack());
-    	event.getPlayer().getInventory().addItem(ExEgg.getItemAsItemStack());
-    	event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
-    	event.getPlayer().getInventory().setHeldItemSlot(0);
-    	
-    	
-    	Location toCompare = event.getPlayer().getLocation();
-    	double temp; temp = toCompare.distance(toCompare);
-    	Location toTeleport = event.getPlayer().getLocation();
-    	
-    	for(int i = 0; i < spawns.size(); i++)
-    	{
-    		
-    		if(temp < spawns.get(i).distance(toCompare))
-    		{
-    			temp = spawns.get(i).distance(toCompare);
-    			toTeleport = spawns.get(i);
-    		}
-    	}
-    	
-    	event.setRespawnLocation(toTeleport);
+		BukkitTask task = new SpawnTask(this.plugin, event).runTaskLater(this.plugin, 0);
 	}
 	
 	@EventHandler
@@ -265,7 +238,7 @@ public class PlayerListener implements Listener
     			event.getClickedBlock().setType(Material.AIR);
     		}else if(event.getClickedBlock().getType() == Material.GOLD_PLATE)
     		{
-    			event.getPlayer().setVelocity(velocity)
+    			event.getPlayer().sendMessage("Click!");
     		}
     	}
     }
