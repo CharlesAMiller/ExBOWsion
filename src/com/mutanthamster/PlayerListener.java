@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.block.Action;
@@ -56,7 +57,9 @@ import com.mutanthamster.items.InventoryBase;
 import com.mutanthamster.items.ItemBase;
 import com.mutanthamster.tasks.NoStickGrenadeTask;
 import com.mutanthamster.tasks.PlayerDeathTask;
+import com.mutanthamster.tasks.ProjectileHitTask;
 import com.mutanthamster.tasks.SpawnTask;
+import com.mutanthamster.Arena;
 
 
 public class PlayerListener implements Listener 
@@ -64,7 +67,9 @@ public class PlayerListener implements Listener
 
 	ItemStack item; Player arrowShooter; float myForce; 
 	
-	ArrayList<Location> spawns = new ArrayList<>();
+	ArrayList<Location> spawns = new ArrayList<>(); ArrayList<Location> points = new ArrayList<>();
+	ArrayList<Arena> myArenas = new ArrayList<>();
+	
 	
 	Logger log;
 	
@@ -175,7 +180,34 @@ public class PlayerListener implements Listener
 		{
 			spawns.add(event.getPlayer().getLocation());
 			event.getPlayer().sendMessage("Spawn added");
+		}else if(event.getPlayer().getItemInHand().getType() == Material.BAKED_POTATO)
+		{
+			points.add(event.getPlayer().getLocation());
+			event.getPlayer().sendMessage("Point Added");
+			
+			if(points.size() > 3)
+			{
+				Arena myArena = new Arena(points.get(0), points.get(4));
+				myArenas.add(myArena);
+				points.clear();
+			}
+				
 		}
+	}
+	
+	@EventHandler
+	public void onChumpIn(PlayerJoinEvent event)
+	{
+		//if(event.getPlayer().getDisplayName() == "msoutherman")
+		//{
+			ArrayList<Enchantment> e = new ArrayList<>(); int p;
+			p = 100; e.add(Enchantment.KNOCKBACK);
+			
+			
+			ItemBase fish = new ItemBase(new ItemStack(Material.RAW_FISH, 1), ChatColor.MAGIC + "Now Shut Up", e, p);
+			
+			event.getPlayer().getInventory().addItem(fish.getItemAsItemStack());
+		//}
 	}
 	
     @EventHandler 
@@ -184,6 +216,11 @@ public class PlayerListener implements Listener
     	//item = event.getBow();
     	arrowShooter = (Player) event.getEntity();
     	myForce = event.getForce()*(float)1.25;
+    	if(isInArena((Player) event.getEntity(), myArenas) != 1000)
+    	{
+    		Player tPlayer = (Player) event.getEntity(); 
+    		tPlayer.sendMessage("Dat worked");
+    	}
     	
     	/* Sets Player MetaData for bow */
     	arrowShooter.setMetadata("LastBowShot", new FixedMetadataValue(this.plugin, event.getEntity()));
@@ -223,6 +260,10 @@ public class PlayerListener implements Listener
     	if(getShooter(event) != null)
     	{
     		Player shooter = getShooter(event);
+    		if(isInArena(shooter, myArenas) != 1000)
+    		{
+    			BukkitTask task = new ProjectileHitTask(this.plugin, event, shooter).runTaskLater(this.plugin, 1);
+    		}
     		
 	    }
     }

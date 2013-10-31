@@ -1,4 +1,6 @@
 package com.mutanthamster.items;
+import java.util.ArrayList;
+
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
@@ -30,7 +32,7 @@ public class ItemBase
 		//item.setAmount(1); //TODO <-- Is this needed?
 	}
 	
-	public ItemBase(ItemStack item, String itemName, Enchantment[] enchantments, int[] enchantmentLevels)
+	public ItemBase(ItemStack item, String itemName, ArrayList<Enchantment> enchantments, int enchantmentLevels)
 	{
 		this.item = item;
 	
@@ -39,9 +41,9 @@ public class ItemBase
 		im.setDisplayName(itemName);
 		this.item.setItemMeta(im);
 		
-		for(int i = 0; i < enchantments.length; i++)
+		for(int i = 0; i < enchantments.size(); i++)
 		{
-			item.addEnchantment(enchantments[i], enchantmentLevels[i]);
+			item.addUnsafeEnchantment(enchantments.get(i), enchantmentLevels);
 		}
 		
 		item.setAmount(1); //TODO <-- Is this needed?

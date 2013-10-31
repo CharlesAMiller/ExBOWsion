@@ -19,19 +19,19 @@ public class Arena
 	ArrayList<Player> populators = new ArrayList<>();
 	ArrayList<Location> spawns = new ArrayList<>();
 	
-	public void Arena(Location p1, Location p2)
+	public Arena(final Location p1, final Location p2)
 	{
 		this.p1 = p1;
 		this.p2 = p2;
 	}
 	
-	public void Arena(Location p1, Location p2, String gameType, int minPlayerSize)
+	/*public void Arena(Location p1, Location p2, String gameType, int minPlayerSize)
 	{
 		this.p1 = p1;
 		this.p2 = p2;
 		this.gameType = gameType;
 		this.minPlayerSize = minPlayerSize;
-	}
+	}*/
 	
 	public void addSpawn(Location addedSpawn){ spawns.add(addedSpawn); }
 	
