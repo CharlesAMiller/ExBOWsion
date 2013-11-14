@@ -30,7 +30,9 @@ public class ProjectileHitTask extends BukkitRunnable
     {
     	if(event.getEntityType() == EntityType.ARROW)
     	{	
-    		event.getEntity().getWorld().createExplosion(event.getEntity().getLocation(), shooter.getMetadata("LastBowPower").get(shooter.getMetadata("LastBowPower").size()).asFloat() * (float)1.25);
+    		shooter.sendMessage("Not broken");
+    		//event.getEntity().getWorld().createExplosion(event.getEntity().getLocation(), shooter.getMetadata("LastBowPower").get(shooter.getMetadata("LastBowPower").size()).asFloat() * (float)1.25);
+    		//event.getEntity().getWorld().createExplosion(x, y, z, power, setFire, breakBlocks)
     	}else if(event.getEntityType() == EntityType.SNOWBALL)
     	{
     		for(int i = 0; i < event.getEntity().getWorld().getPlayers().size(); i++)

@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.mutanthamster.Arena;
 
@@ -30,12 +31,14 @@ public class SpawnTask extends BukkitRunnable
     {
     	myArena = (Arena) event.getPlayer().getMetadata("Arena").get(0);
     	
-    	int avgPopulators, avgDistance, minThreshHold, spawnPlaceInList = 0;
+    	int avgPopulators, avgDistance, minThreshHold, spawnPlaceInList = 1000;
     	
     	if(myArena.getGametype() == "Deathmatch" || myArena.getGametype() == "DM")
     	{
     		minThreshHold = 3;
     		avgDistance = 0;
+    		
+    		BukkitTask task = new AwardInventoryTask(this.plugin, event, "D").runTaskLater(this.plugin, 0);
     		
     		for(int i = 0; i < myArena.getSpawns().size(); i++)
     		{
@@ -58,7 +61,11 @@ public class SpawnTask extends BukkitRunnable
     		//Do TDM Stuff
     	}
     	
-    	event.setRespawnLocation(myArena.getSpawn(spawnPlaceInList));
+    	if(spawnPlaceInList != 1000)
+    	{
+    		event.setRespawnLocation(myArena.getSpawn(spawnPlaceInList));
+    	}
+    	
 	}
     
     

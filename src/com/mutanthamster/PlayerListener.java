@@ -55,6 +55,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import com.mutanthamster.items.InventoryBase;
 import com.mutanthamster.items.ItemBase;
+import com.mutanthamster.tasks.JoinServerTask;
 import com.mutanthamster.tasks.NoStickGrenadeTask;
 import com.mutanthamster.tasks.PlayerDeathTask;
 import com.mutanthamster.tasks.ProjectileHitTask;
@@ -69,9 +70,6 @@ public class PlayerListener implements Listener
 	
 	ArrayList<Location> spawns = new ArrayList<>(); ArrayList<Location> points = new ArrayList<>();
 	ArrayList<Arena> myArenas = new ArrayList<>();
-	
-	
-	Logger log;
 	
 	Scoreboard kills, streakKills;
 	
@@ -188,6 +186,7 @@ public class PlayerListener implements Listener
 			if(points.size() > 3)
 			{
 				Arena myArena = new Arena(points.get(0), points.get(4));
+				myArena.setGametype("DM");
 				myArenas.add(myArena);
 				points.clear();
 			}
@@ -196,18 +195,9 @@ public class PlayerListener implements Listener
 	}
 	
 	@EventHandler
-	public void onChumpIn(PlayerJoinEvent event)
+	public void onPlayerJoin(PlayerJoinEvent event)
 	{
-		//if(event.getPlayer().getDisplayName() == "msoutherman")
-		//{
-			ArrayList<Enchantment> e = new ArrayList<>(); int p;
-			p = 100; e.add(Enchantment.KNOCKBACK);
-			
-			
-			ItemBase fish = new ItemBase(new ItemStack(Material.RAW_FISH, 1), ChatColor.MAGIC + "Now Shut Up", e, p);
-			
-			event.getPlayer().getInventory().addItem(fish.getItemAsItemStack());
-		//}
+		BukkitTask task = new JoinServerTask(this.plugin, event).runTaskLater(this.plugin, 0);
 	}
 	
     @EventHandler 
@@ -262,7 +252,7 @@ public class PlayerListener implements Listener
     		Player shooter = getShooter(event);
     		if(isInArena(shooter, myArenas) != 1000)
     		{
-    			BukkitTask task = new ProjectileHitTask(this.plugin, event, shooter).runTaskLater(this.plugin, 1);
+    			BukkitTask task = new ProjectileHitTask(this.plugin, event, shooter).runTaskLater(this.plugin, 2);
     		}
     		
 	    }
@@ -277,9 +267,6 @@ public class PlayerListener implements Listener
     		{
     			event.getClickedBlock().getWorld().createExplosion(event.getClickedBlock().getLocation().getX(), event.getClickedBlock().getLocation().getY(), event.getClickedBlock().getLocation().getZ(), 6, false, false);
     			event.getClickedBlock().setType(Material.AIR);
-    		}else if(event.getClickedBlock().getType() == Material.GOLD_PLATE)
-    		{
-    			event.getPlayer().sendMessage("Click!");
     		}
     	}
     }

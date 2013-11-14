@@ -61,6 +61,8 @@ public class Arena
 		return toReturn;
 	}
 	
+	public void setGametype(String gameType){ this.gameType = gameType; }
+	
 	public ArrayList<Player> getPopulators(){ return populators; }
 	
 	public ArrayList<Location> getSpawns() { return spawns; }

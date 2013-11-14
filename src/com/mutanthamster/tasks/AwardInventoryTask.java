@@ -44,6 +44,5 @@ public class AwardInventoryTask extends BukkitRunnable
         	event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
         	event.getPlayer().getInventory().setHeldItemSlot(0);
     	}
-    		
 	}
 }
