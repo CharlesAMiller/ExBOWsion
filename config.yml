@@ -1,3 +1,4 @@
 Arenas:
-	Tree
-	Desert
+  Tree:
+    Location:
+    Name: 'Tree'

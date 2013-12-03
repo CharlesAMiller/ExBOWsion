@@ -32,25 +32,12 @@ public class Expanse extends JavaPlugin
 	{
         PluginManager pm = this.getServer().getPluginManager();
         pm.registerEvents(new PlayerListener(this), this);
-        
-        if(this.getConfig().getStringList("Arenas") != null)
-        {
-        	this.log.info("Arenas list generated");
-        }
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)
 	{
 		//Gets the player who issued the command
 		Player player = (Player) sender;
-		
-		if(commandLabel.equalsIgnoreCase("class"))
-		{
-			player.setDisplayName(args[0]);
-			player.setCustomNameVisible(true);
-	    	
-		}
-		
 		return true;
 	}
 } 

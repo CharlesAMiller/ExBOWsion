@@ -1,6 +1,8 @@
 package com.mutanthamster;
 
 
+import java.awt.List;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
@@ -59,6 +61,7 @@ import com.mutanthamster.tasks.JoinServerTask;
 import com.mutanthamster.tasks.NoStickGrenadeTask;
 import com.mutanthamster.tasks.PlayerDeathTask;
 import com.mutanthamster.tasks.ProjectileHitTask;
+import com.mutanthamster.tasks.ShootArrowTask;
 import com.mutanthamster.tasks.SpawnTask;
 import com.mutanthamster.Arena;
 
@@ -66,13 +69,6 @@ import com.mutanthamster.Arena;
 public class PlayerListener implements Listener 
 {
 
-	ItemStack item; Player arrowShooter; float myForce; 
-	
-	ArrayList<Location> spawns = new ArrayList<>(); ArrayList<Location> points = new ArrayList<>();
-	ArrayList<Arena> myArenas = new ArrayList<>();
-	
-	Scoreboard kills, streakKills;
-	
 	public Expanse plugin;
 	
 	public PlayerListener(Expanse instance) 
@@ -80,8 +76,7 @@ public class PlayerListener implements Listener
 		plugin = instance;
 	}
 	
-	//TODO: Consider changing the name of the functions (i.e. "getPlayer")
-	public Player getShooter(ProjectileHitEvent event)
+	public Player getPlayer(ProjectileHitEvent event)
 	{
 		Player toReturn = null;
 		if(event.getEntity().getShooter() instanceof Player)
@@ -91,7 +86,7 @@ public class PlayerListener implements Listener
 		return toReturn;
 	}
 	
-	public Player getShooter(EntityDamageByEntityEvent event)
+	public Player getPlayer(EntityDamageByEntityEvent event)
 	{
 		Player toReturn = null;
 		if(event.getDamager() instanceof Player)
@@ -101,18 +96,24 @@ public class PlayerListener implements Listener
 		return toReturn;
 	}
 
-	public int isInArena(Player player, ArrayList<Arena> arenas)
+	public Player getPlayer(EntityShootBowEvent event)
 	{
-		for(int i = 0; i < arenas.size(); i++)
+		Player toReturn = null;
+		if(event.getEntity() instanceof Player)
 		{
-			if(player.getLocation().distance(arenas.get(i).getArenaPoints().get(0)) < arenas.get(i).getArenaPoints().get(0).distance(arenas.get(i).getArenaPoints().get(1)))
-			{
-				player.setMetadata("Arena", new FixedMetadataValue(this.plugin, arenas.get(i)));
-				return i;
-			}
-				
+			toReturn = (Player) event.getEntity();
 		}
-		return 1000;
+		return toReturn;
+	}
+	
+	public boolean isInGameWorld(Player player)
+	{
+		if(player.getWorld().getMetadata("gamemode").get(0).asString().equalsIgnoreCase("Exbowsion"))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	
 	
@@ -167,54 +168,27 @@ public class PlayerListener implements Listener
 				
 			}else if(itemInHand.getItemMeta().getLore().get(0) == "Sentry")
 			{
-				event.getPlayer().getWorld().getBlockAt(event.getPlayer().getLocation()).setType(Material.FENCE);
-				Block myDispenser = event.getPlayer().getWorld().getBlockAt(event.getPlayer().getLocation().getBlockX(), event.getPlayer().getLocation().getBlockY() +1, event.getPlayer().getLocation().getBlockZ());
-				myDispenser.setType(Material.DISPENSER);
+				event.getPlayer().sendMessage("Placed Sentry");
 			}
 			
 			event.getPlayer().getInventory().clear(8);
-			
-		}else if(event.getPlayer().getItemInHand().getType() == Material.BLAZE_ROD)
-		{
-			spawns.add(event.getPlayer().getLocation());
-			event.getPlayer().sendMessage("Spawn added");
-		}else if(event.getPlayer().getItemInHand().getType() == Material.BAKED_POTATO)
-		{
-			points.add(event.getPlayer().getLocation());
-			event.getPlayer().sendMessage("Point Added");
-			
-			if(points.size() > 3)
-			{
-				Arena myArena = new Arena(points.get(0), points.get(4));
-				myArena.setGametype("DM");
-				myArenas.add(myArena);
-				points.clear();
-			}
-				
 		}
 	}
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event)
 	{
+		event.getPlayer().getWorld().setMetadata("gamemode", new FixedMetadataValue(this.plugin, "Exbowsion"));
 		BukkitTask task = new JoinServerTask(this.plugin, event).runTaskLater(this.plugin, 0);
 	}
 	
     @EventHandler 
     public void onShootArrow(EntityShootBowEvent event)
-    {
-    	//item = event.getBow();
-    	arrowShooter = (Player) event.getEntity();
-    	myForce = event.getForce()*(float)1.25;
-    	if(isInArena((Player) event.getEntity(), myArenas) != 1000)
+    { 	
+    	if(getPlayer(event) != null)
     	{
-    		Player tPlayer = (Player) event.getEntity(); 
-    		tPlayer.sendMessage("Dat worked");
+    		BukkitTask task = new ShootArrowTask(this.plugin, event).runTaskLater(this.plugin, 0);
     	}
-    	
-    	/* Sets Player MetaData for bow */
-    	arrowShooter.setMetadata("LastBowShot", new FixedMetadataValue(this.plugin, event.getEntity()));
-    	arrowShooter.setMetadata("LastBowPower",new FixedMetadataValue(this.plugin, (float)event.getForce()*(float)1.25));
     }
     
     @EventHandler 
@@ -247,10 +221,10 @@ public class PlayerListener implements Listener
     public void onProjectileHitGround(ProjectileHitEvent event)
     {
     	/*Ensures that the shooter must be a player*/
-    	if(getShooter(event) != null)
+    	if(getPlayer(event) != null)
     	{
-    		Player shooter = getShooter(event);
-    		if(isInArena(shooter, myArenas) != 1000)
+    		Player shooter = getPlayer(event);
+    		if(isInGameWorld(shooter))
     		{
     			BukkitTask task = new ProjectileHitTask(this.plugin, event, shooter).runTaskLater(this.plugin, 2);
     		}

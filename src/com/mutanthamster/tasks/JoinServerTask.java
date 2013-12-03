@@ -33,6 +33,12 @@ public class JoinServerTask extends BukkitRunnable
     		ArrayList<Enchantment> e = new ArrayList<>(); int p;
 			p = 100; e.add(Enchantment.KNOCKBACK);
 			ItemBase fish = new ItemBase(new ItemStack(Material.RAW_FISH, 1), ChatColor.MAGIC + "Now Shut Up", e, p);
+			
+			/*
+			ItemBase lChest = new ItemBase(new ItemStack(Material.LEATHER_CHESTPLATE), ChatColor.BLACK + "Faggot Chest", 1);
+			ItemBase lHead = new ItemBase(new ItemStack(Material.LEATHER_CHESTPLATE), ChatColor.BLACK + "Faggot Chest", 1);
+			ItemBase lChest = new ItemBase(new ItemStack(Material.LEATHER_CHESTPLATE), ChatColor.BLACK + "Faggot Chest", 1);
+			*/
 			event.getPlayer().getInventory().addItem(fish.getItemAsItemStack());
     	}else if(event.getPlayer().getPlayer().getName().equalsIgnoreCase("porthog"))
     	{
